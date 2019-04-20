@@ -4,9 +4,6 @@
 # Spectral decomposition demo.
 
 import numpy as np
-import matplotlib.pyplot as plt
-
-import spectra
 
 nbins = 100
 width = 100
@@ -50,9 +47,3 @@ def spectrum(low, high, *args, **kwargs):
         return sum(p)
 
     return sf
-
-x = np.linspace(0, width, nbins)
-s = spectra.spectrum(0, width)
-noise = np.random.normal(size=nbins)
-plt.plot(x, s(x) + 0.1 * noise)
-plt.show()
