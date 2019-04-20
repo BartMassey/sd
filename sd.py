@@ -22,14 +22,37 @@ width = 100
 # Number of spectra in dictionary.
 ndict = 5
 
+# Make basis spectra and set up sampling.
 x = np.linspace(0, width, nbins)
 sdict = spectra.sdict(ndict, 0, width)
-# noise = np.random.normal(size=nbins)
 
+# Plot basis spectra.
 fig = plt.figure(num=1, figsize=(ndict, 1.5 * ndict))
 fig.subplots_adjust(hspace=1)
 for s in sdict:
     fig.add_subplot(5, 1, s.id+1, title=s.name)
-    plt.plot(x / width, s.spectrum(x))
+    plt.plot(x, s.spectrum(x))
 fig.suptitle("Basis Spectra (seed {})".format(seed))
+
+# Basis amplitude (prevalence).
+ampl = np.random.random(size=ndict)
+
+# Implied spectrum.
+bases = np.array([s.spectrum(x) for s in sdict])
+spectrum = np.dot(ampl, bases)
+
+# Noisy measured spectrum.
+noise = 0.2 * np.random.random(size=nbins)
+measured = spectrum + noise
+
+# Plot starting points.
+fig = plt.figure(num=2, figsize=(5, 5))
+fig.subplots_adjust(hspace=0.5)
+fig.add_subplot(2, 1, 1, title="implied")
+plt.plot(x, spectrum)
+fig.add_subplot(2, 1, 2, title="measured")
+plt.plot(x, measured)
+fig.suptitle("Spectrum")
+
+# Show all plots.
 plt.show()
