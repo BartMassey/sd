@@ -47,3 +47,32 @@ def spectrum(low, high, *args, **kwargs):
         return sum(p)
 
     return sf
+
+def randname():
+    'A random "element name".'
+    letters = {chr(ord('a') + i) for i in range(26)}
+    v = {'a', 'e', 'i', 'o'}
+    c = letters - v - {'u', 'y'}
+    x = lambda chs: np.random.choice(list(chs))
+    return x(v) + x(c) + x(c) + "ium"
+
+nspectra = 0
+class Spectrum(object):
+    "Object representing a spectrum."
+    def __init__(self, low, high):
+        "Create a random spectrum."
+        global nspectra
+        self.id = nspectra
+        nspectra += 1
+        self.name = randname()
+        self.spectrum = spectrum(low, high)
+
+    def sample(self, x):
+        "The spectral value at coordinate(s) x."
+        return self.spectrum(x)
+
+def sdict(nspectra, low, high):
+    """Create a "dictionary" of spectra
+    as a list of Spectrum objects.
+    """
+    return [Spectrum(low, high) for _ in range(nspectra)]
