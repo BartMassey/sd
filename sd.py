@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import spectra
+import cvx
 
 # Set up seed for reproducibility.
 seed=np.random.randint(1, 101)
@@ -45,13 +46,19 @@ spectrum = np.dot(ampl, bases)
 noise = 0.2 * np.random.random(size=nbins)
 measured = spectrum + noise
 
-# Plot starting points.
-fig = plt.figure(num=2, figsize=(5, 5))
-fig.subplots_adjust(hspace=0.5)
-fig.add_subplot(2, 1, 1, title="implied")
+# Decomposed spectrum
+(ampl0, noise0) = cvx.decompose(bases, measured)
+spectrum0 = np.dot(ampl0, bases)
+
+# Plot analysis.
+fig = plt.figure(num=2, figsize=(8, 5))
+fig.subplots_adjust(hspace=1)
+fig.add_subplot(3, 1, 1, title="implied")
 plt.plot(x, spectrum)
-fig.add_subplot(2, 1, 2, title="measured")
+fig.add_subplot(3, 1, 2, title="measured")
 plt.plot(x, measured)
+fig.add_subplot(3, 1, 3, title="decomposed (noise {})".format(noise0))
+plt.plot(x, spectrum0)
 fig.suptitle("Spectrum")
 
 # Show all plots.
