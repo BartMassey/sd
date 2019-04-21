@@ -13,8 +13,8 @@ CVXPY is used to estimate the spectral composition and noise
 level of the measured spectrum. Finally, the results of the
 simulation and analysis are displayed both textually and
 graphically using [`matplotlib`](https://matplotlib.org):
-the figures generated are also saved as PNG files in the
-current directory.
+the analysis and figures generated are also saved as `txt`
+and PNG files in the current directory.
 
 ## Build and Run
 
@@ -48,7 +48,10 @@ analysis (q=1.169, noise=0.214 (0.200)):
 ```
 
 Note that the basis spectra are given randomly-generated
-"element names" for convenience.
+"element names" for convenience. The numbers in parentheses
+are the "true" values for which the numbers to their left
+are estimates. The `q` is the least-squares error in the
+approximation: it should be small.
 
 The code should also display two figures. Figure 1 shows the
 basis spectra chosen for the analysis.
