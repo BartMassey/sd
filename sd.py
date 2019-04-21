@@ -31,9 +31,11 @@ argp.add_argument("--bases", type=int,
 argp.add_argument("--samples", type=int,
                   default=100,
                   help="spectral sample width (default 100)")
+argp.add_argument("--complete", action='store_true',
+                  help="require prevalences to sum to 1")
 argp.add_argument("--save", action='store_true',
                   help="save analysis artifacts to files")
-argp.add_argument("--hide-basis", action='store_false',
+argp.add_argument("--hide-basis", action='store_true',
                   help="do not render the basis functions " +
                        "(true for --bases > 5)")
 args = argp.parse_args()
@@ -42,7 +44,8 @@ noise = args.noise
 save = args.save
 nbins = args.samples
 ndict = args.bases
-show_basis = not args.hide_basis
+complete = args.complete
+show_basis = not args.hide_basis and ndict <= 5
 
 # Width of detector (usually bandwidth).
 width = nbins
@@ -65,8 +68,12 @@ if show_basis:
     if save:
         fig.savefig("basis-{}.png".format(seed))
 
-# Basis amplitude (prevalence).
+# Normalized basis amplitude (prevalence).
 ampl = np.random.random(size=ndict)
+if complete:
+    ampl /= np.sum(ampl)
+else:
+    ampl *= 0.5 * (1 + np.random.random()) / np.max(ampl)
 
 # Implied spectrum.
 bases = np.array([s.spectrum(x) for s in sdict])
@@ -76,7 +83,7 @@ spectrum = np.dot(ampl, bases) + noise
 noise_spectrum = noise * 2 * np.random.random(size=nbins)
 measured = spectrum + noise_spectrum
 
-# Decompose measured spectrum and report
+# Print an analysis report.
 def report(fout=None):
     if fout == None:
         f = sys.stdout
@@ -90,7 +97,8 @@ def report(fout=None):
     if fout != None:
         f.close()
 
-(ampl0, noise0, q) = cvx.decompose(bases, measured)
+# Decompose measured spectrum and report
+(ampl0, noise0, q) = cvx.decompose(bases, measured, complete)
 report()
 if save:
     report("analysis-{}.txt".format(seed))

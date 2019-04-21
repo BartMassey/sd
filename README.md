@@ -29,13 +29,26 @@ It is likely that `numpy` and `matplotlib` are available in
 a standard OS distro. All of the prerequisites can be
 installed via `pip3 install`.
 
-To run the program, you can just say `python3 sd.py`. Note
-that each run will generate a pseudo-random number generator
-seed, which can be given on the command line to repeat a
-previous run. You can set the noise level (which defaults to
-0). You can specify saving your analysis files to the
-current directory for later use. Say `python3 sd.py --help`
-for details.
+To run the program, you can just say `python3 sd.py`.
+
+* Each run will generate a pseudo-random number generator
+  seed, which can be given on the command line to repeat a
+  previous run.
+
+* You can set the noise level (default 0), the number of
+  spectral samples (default 100), and the number of bases
+  (default 5).
+
+* By default, the basis prevalences (amplitudes) are
+  normalized so that the largest is between 0.5 and 1.  You
+  can also ask that the bases sum to exactly 1: a "complete"
+  spectrum. The analysis will take this into account in its
+  constraint model.
+
+* You can specify saving your analysis files to the current
+  directory for later use.
+
+Say `python3 sd.py --help` for program usage details.
 
 ## Example
 
@@ -47,12 +60,12 @@ The analysis should complete quickly and print the following
 text:
 
 ```
-analysis (q=0.192, noise=0.205 (0.200)):
-- olvium: 0.618 (0.547)
-- afqium: 0.788 (0.813)
-- emvium: 0.622 (0.608)
-- ecsium: 0.164 (0.191)
-- anpium: 0.193 (0.199)
+analysis (q=0.192, noise=0.203 (0.200)):
+- olvium: 0.536 (0.453)
+- afqium: 0.670 (0.674)
+- emvium: 0.520 (0.504)
+- ecsium: 0.134 (0.158)
+- anpium: 0.138 (0.165)
 ```
 
 Note that the basis spectra are given randomly-generated

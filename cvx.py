@@ -10,11 +10,13 @@
 import cvxpy as cp
 import numpy as np
 
-def decompose(bases, spectrum):
+def decompose(bases, spectrum, complete):
     """Decompose the given measured spectrum as amplitudes of
     the given bases at the sample points x.  Assume a
     uniform noise model and estimate the noise amplitude.
-    Return the basis amplitudes and the noise amplitude.
+    If complete is true, amplitudes must sum to 1, else they
+    must all be <= 1.  Return the basis amplitudes, the
+    noise amplitude and the quality figure.
 
     """
 
@@ -29,8 +31,16 @@ def decompose(bases, spectrum):
     # Form objective.
     obj = cp.Minimize(cp.norm(bases.T * ampl + noise - spectrum, "inf"))
 
-    # Add some sanity constraints.
-    constraints = [noise >= 0, noise <= 1, ampl >= 0, ampl <= len(bases)]
+    # Impose constraints.
+    constraints = [
+        noise >= 0, noise <= 1,
+        ampl >= 0, ampl <= 1,
+    ]
+
+    if complete:
+        constraints += [cp.sum(ampl) == 1]
+    else:
+        constraints += [ampl <= 1]
 
     # Form and solve problem.
     prob = cp.Problem(obj, constraints)
