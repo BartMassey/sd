@@ -18,14 +18,16 @@ def decompose(bases, spectrum):
 
     """
 
+    ndims = len(bases)
+
     # Create a vector of amplitude estimates.
-    ampl = cp.Variable(len(bases))
+    ampl = cp.Variable(ndims)
 
     # Create a noise estimate.
     noise = cp.Variable()
 
     # Form objective.
-    obj = cp.Minimize(cp.norm(bases.T * ampl + 2 * noise - spectrum, 2))
+    obj = cp.Minimize(cp.norm(bases.T * ampl + noise - spectrum, "inf"))
 
     # Add some sanity constraints.
     constraints = [noise >= 0, noise <= 1, ampl >= 0, ampl <= len(bases)]
@@ -36,4 +38,4 @@ def decompose(bases, spectrum):
     assert prob.status == cp.OPTIMAL or prob.status == cp.OPTIMAL_INACCURATE
     if prob.status == cp.OPTIMAL_INACCURATE:
         print("warning: analysis reports as inaccurate")
-    return (ampl.value, noise.value, prob.value)
+    return (ampl.value, 0.5 * noise.value, prob.value)

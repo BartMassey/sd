@@ -41,25 +41,25 @@ for details.
 
 Let's try it:
 
-    python3 sd.py --seed=27 --noise=0.4
+    python3 sd.py --seed=27 --noise=0.2
 
 The analysis should complete quickly and print the following
 text:
 
 ```
-analysis (q=2.338, noise=0.428 (0.400)):
-- olvium: 0.516 (0.547)
-- afqium: 0.750 (0.813)
-- emvium: 0.564 (0.608)
-- ecsium: 0.135 (0.191)
-- anpium: 0.261 (0.199)
+analysis (q=0.192, noise=0.205 (0.200)):
+- olvium: 0.618 (0.547)
+- afqium: 0.788 (0.813)
+- emvium: 0.622 (0.608)
+- ecsium: 0.164 (0.191)
+- anpium: 0.193 (0.199)
 ```
 
 Note that the basis spectra are given randomly-generated
 "element names" for convenience. The numbers in parentheses
 are the "true" values for which the numbers to their left
-are estimates. The `q` is the least-squares error in the
-approximation: it should be small.
+are estimates. The `q` is the absolute error (L1 norm) in
+the approximation: it should be small.
 
 The code should also display two figures. Figure 1 shows the
 basis spectra chosen for the analysis.
@@ -75,7 +75,9 @@ and the estimated spectrum.
 ## Future Work
 
 The handling of the noise component still doesn't seem to be
-quite right. A statistician should think about it.
+quite right. A statistician should think about it. Moving
+from the L2 norm to the L1 norm seemed to help here,
+although that may not be the right answer.
 
 It would be useful to add a lambda parameter that
 disproportionately penalized the objective function for
