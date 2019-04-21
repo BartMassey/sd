@@ -45,6 +45,11 @@ To run the program, you can just say `python3 sd.py`.
   spectrum. The analysis will take this into account in its
   constraint model.
 
+* You can set the norm used for the error computation in the
+  solver. The default is to use the L1 norm, which works
+  pretty well: you can also choose the always popular L2
+  norm or the Linf norm.
+
 * You can specify saving your analysis files to the current
   directory for later use.
 

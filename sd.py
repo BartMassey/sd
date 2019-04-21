@@ -31,6 +31,10 @@ argp.add_argument("--bases", type=int,
 argp.add_argument("--samples", type=int,
                   default=100,
                   help="spectral sample width (default 100)")
+argp.add_argument("--norm", type=str,
+                  choices=["L1", "L2", "Linf"],
+                  default="Linf",
+                  help="error norm (default L1) -- see docs")
 argp.add_argument("--complete", action='store_true',
                   help="require prevalences to sum to 1")
 argp.add_argument("--save", action='store_true',
@@ -39,13 +43,21 @@ argp.add_argument("--hide-basis", action='store_true',
                   help="do not render the basis functions " +
                        "(true for --bases > 5)")
 args = argp.parse_args()
+
+# Set the simple variables up.
 seed = args.seed
 noise = args.noise
 save = args.save
 nbins = args.samples
 ndict = args.bases
 complete = args.complete
+
+# Enable the basis under the right conditions.
 show_basis = not args.hide_basis and ndict <= 5
+
+# Pick a valid norm.
+norms = {"L1" : 1, "L2" : 2, "Linf" : "inf"}
+norm = norms[normdesc]
 
 # Width of detector (usually bandwidth).
 width = nbins
@@ -98,7 +110,7 @@ def report(fout=None):
         f.close()
 
 # Decompose measured spectrum and report
-(ampl0, noise0, q) = cvx.decompose(bases, measured, complete)
+(ampl0, noise0, q) = cvx.decompose(bases, measured, complete, norm)
 report()
 if save:
     report("analysis-{}.txt".format(seed))
