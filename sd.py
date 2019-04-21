@@ -12,9 +12,11 @@ import spectra
 import cvx
 
 # Set up seed for reproducibility.
-seed=np.random.randint(1, 101)
 if len(sys.argv) > 1:
     seed=int(sys.argv[1])
+else:
+    seed=np.random.randint(1, 101)
+np.random.seed(seed)
 
 # Number of sample "bins" in detector.
 nbins = 100

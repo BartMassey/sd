@@ -53,7 +53,7 @@ def randname():
     letters = {chr(ord('a') + i) for i in range(26)}
     v = {'a', 'e', 'i', 'o'}
     c = letters - v - {'u', 'y'}
-    x = lambda chs: np.random.choice(list(chs))
+    x = lambda chs: np.random.choice(sorted(list(chs)))
     return x(v) + x(c) + x(c) + "ium"
 
 nspectra = 0
