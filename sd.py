@@ -38,6 +38,7 @@ for s in sdict:
     fig.add_subplot(5, 1, s.id+1, title=s.name)
     plt.plot(x, s.spectrum(x))
 fig.suptitle("Basis Spectra (seed {})".format(seed))
+fig.savefig("basis-{}.png".format(seed))
 
 # Basis amplitude (prevalence).
 ampl = np.random.random(size=ndict)
@@ -51,11 +52,22 @@ noise_spectrum = noise * 2 * np.random.random(size=nbins)
 measured = spectrum + noise_spectrum
 
 # Decompose measured spectrum and report
+def report(fout=None):
+    if fout == None:
+        f = sys.stdout
+    else:
+        f = open(fout, 'w')
+    print("analysis (q={:.3f}, noise={:.3f} ({:.3f})):"
+          .format(q, noise0, noise), file=f)
+    for s in sdict:
+        print("- {}: {:.3f} ({:.3f})"
+              .format(s.name, ampl0[s.id], ampl[s.id]), file=f)
+    if fout != None:
+        f.close()
+
 (ampl0, noise0, q) = cvx.decompose(bases, measured)
-print("analysis (q={:.3f}, noise={:.3f} ({:.3f})):".format(q, noise0, noise))
-for s in sdict:
-    print("- {}: {:.3f} ({:.3f})".format(s.name, ampl0[s.id], ampl[s.id]))
-print()
+report()
+report("analysis-{}.txt".format(seed))
 spectrum0 = np.dot(ampl0, bases) + noise0
 
 # Plot analysis.
@@ -70,6 +82,7 @@ label = "est (noise {:.3f})".format(noise0)
 plt.plot(x, spectrum0, label=label)
 plt.legend()
 fig.suptitle("Spectrum")
+fig.savefig("spectrum-{}.png".format(seed))
 
 # Show all plots.
 plt.show()
