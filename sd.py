@@ -28,6 +28,8 @@ argp.add_argument("--noise", type=float,
 argp.add_argument("--bases", type=int,
                   default=5,
                   help="number of basis functions (default 5)")
+argp.add_argument("--sparse", type=int,
+                  help="number of basis functions in spectrum (default all)")
 argp.add_argument("--samples", type=int,
                   default=100,
                   help="spectral sample width (default 100)")
@@ -57,7 +59,17 @@ show_basis = not args.hide_basis and ndict <= 5
 
 # Pick a valid norm.
 norms = {"L1" : 1, "L2" : 2, "Linf" : "inf"}
-norm = norms[normdesc]
+norm = norms[args.norm]
+
+# Deal with sparse spectra
+if args.sparse == None:
+    sparse = nbins
+else:
+    sparse = args.sparse
+    if sparse <= 0:
+        sparse = 1
+    if sparse > nbins:
+        sparse = nbins
 
 # Width of detector (usually bandwidth).
 width = nbins
@@ -82,6 +94,9 @@ if show_basis:
 
 # Normalized basis amplitude (prevalence).
 ampl = np.random.random(size=ndict)
+if sparse < ndict:
+    ampl = np.append(ampl[:sparse], np.zeros(ndict - sparse))
+    np.random.shuffle(ampl)
 if complete:
     ampl /= np.sum(ampl)
 else:

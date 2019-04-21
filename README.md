@@ -50,6 +50,11 @@ To run the program, you can just say `python3 sd.py`.
   pretty well: you can also choose the always popular L2
   norm or the Linf norm.
 
+* You can choose to use only some of the bases to form the
+  spectrum, with the rest having zero prevalence. This
+  "sparse" spectrum could be further optimized through
+  greedy basis pursuit — see Future Work below.
+
 * You can specify saving your analysis files to the current
   directory for later use.
 
@@ -113,6 +118,10 @@ expensive.
 A better measurement model would be a good addition,
 although at that point probably an analysis on real power
 spectral data would be even better.
+
+Greedy basis pursuit should be used to analyze "sparse"
+spectra. This should give better prevalence figures in this
+case.
 
 ## License
 
