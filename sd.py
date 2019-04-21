@@ -8,6 +8,7 @@
 # Spectral decomposition demo.
 
 import sys
+import argparse
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,11 +16,23 @@ import matplotlib.pyplot as plt
 import spectra
 import cvx
 
-# Set up seed for reproducibility.
-if len(sys.argv) > 1:
-    seed=int(sys.argv[1])
-else:
-    seed=np.random.randint(1, 101)
+# Process arguments.
+argp = argparse.ArgumentParser(
+    description="Power spectral decomposition demo.")
+argp.add_argument("--seed", type=int,
+                  default=np.random.randint(1, 100),
+                  help="PRNG seed (default randomly generated)")
+argp.add_argument("--noise", type=float,
+                  default=0,
+                  help="noise power level (default 0)")
+argp.add_argument("--save", action='store_true',
+                  help="save analysis artifacts to files")
+args = argp.parse_args()
+seed = args.seed
+noise = args.noise
+save = args.save
+
+# Set the seed.
 np.random.seed(seed)
 
 # Number of sample "bins" in detector.
@@ -28,8 +41,6 @@ nbins = 100
 width = 100
 # Number of spectra in dictionary.
 ndict = 5
-# Mean noise level for measurement.
-noise = 0.2
 
 # Make basis spectra and set up sampling.
 x = np.linspace(0, width, nbins)
@@ -42,7 +53,8 @@ for s in sdict:
     fig.add_subplot(5, 1, s.id+1, title=s.name)
     plt.plot(x, s.spectrum(x))
 fig.suptitle("Basis Spectra (seed {})".format(seed))
-fig.savefig("basis-{}.png".format(seed))
+if save:
+    fig.savefig("basis-{}.png".format(seed))
 
 # Basis amplitude (prevalence).
 ampl = np.random.random(size=ndict)
@@ -71,7 +83,8 @@ def report(fout=None):
 
 (ampl0, noise0, q) = cvx.decompose(bases, measured)
 report()
-report("analysis-{}.txt".format(seed))
+if save:
+    report("analysis-{}.txt".format(seed))
 spectrum0 = np.dot(ampl0, bases) + noise0
 
 # Plot analysis.
@@ -86,7 +99,8 @@ label = "est (noise {:.3f})".format(noise0)
 plt.plot(x, spectrum0, label=label)
 plt.legend()
 fig.suptitle("Spectrum")
-fig.savefig("spectrum-{}.png".format(seed))
+if save:
+    fig.savefig("spectrum-{}.png".format(seed))
 
 # Show all plots.
 plt.show()

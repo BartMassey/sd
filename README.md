@@ -29,22 +29,30 @@ It is likely that `numpy` and `matplotlib` are available in
 a standard OS distro. All of the prerequisites can be
 installed via `pip3 install`.
 
-To run the program, just say `python3 sd.py`. Note that each
-run will generate a random number seed, which can be given
-on the command line to repeat a previous run.
+To run the program, you can just say `python3 sd.py`. Note
+that each run will generate a pseudo-random number generator
+seed, which can be given on the command line to repeat a
+previous run. You can set the noise level (which defaults to
+0). You can specify saving your analysis files to the
+current directory for later use. Say `python3 sd.py --help`
+for details.
 
 ## Example
 
-Let's try `python3 sd.py 27`. The analysis should complete
-quickly and print the following text:
+Let's try it:
+
+    python3 sd.py --seed=27 --noise=0.4
+
+The analysis should complete quickly and print the following
+text:
 
 ```
-analysis (q=1.169, noise=0.214 (0.200)):
-- olvium: 0.531 (0.547)
-- afqium: 0.782 (0.813)
-- emvium: 0.586 (0.608)
-- ecsium: 0.163 (0.191)
-- anpium: 0.230 (0.199)
+analysis (q=2.338, noise=0.428 (0.400)):
+- olvium: 0.516 (0.547)
+- afqium: 0.750 (0.813)
+- emvium: 0.564 (0.608)
+- ecsium: 0.135 (0.191)
+- anpium: 0.261 (0.199)
 ```
 
 Note that the basis spectra are given randomly-generated
