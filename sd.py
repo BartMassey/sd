@@ -24,7 +24,7 @@ nbins = 100
 width = 100
 # Number of spectra in dictionary.
 ndict = 5
-# Noise level for measurement.
+# Mean noise level for measurement.
 noise = 0.2
 
 # Make basis spectra and set up sampling.
@@ -44,7 +44,7 @@ ampl = np.random.random(size=ndict)
 
 # Implied spectrum.
 bases = np.array([s.spectrum(x) for s in sdict])
-spectrum = np.dot(ampl, bases)
+spectrum = np.dot(ampl, bases) + noise
 
 # Noisy measured spectrum.
 noise_spectrum = noise * 2 * np.random.random(size=nbins)
@@ -56,7 +56,7 @@ print("analysis (q={:.3f}, noise={:.3f} ({:.3f})):".format(q, noise0, noise))
 for s in sdict:
     print("- {}: {:.3f} ({:.3f})".format(s.name, ampl0[s.id], ampl[s.id]))
 print()
-spectrum0 = np.dot(ampl0, bases)
+spectrum0 = np.dot(ampl0, bases) + noise0
 
 # Plot analysis.
 fig = plt.figure(num=2, figsize=(6, 5))
