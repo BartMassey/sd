@@ -29,7 +29,7 @@ def decompose(bases, spectrum):
     # Form and solve problem.
     prob = cp.Problem(obj, constraints)
     prob.solve()
-    print("status:", prob.status)
     assert prob.status == cp.OPTIMAL or prob.status == cp.OPTIMAL_INACCURATE
-    print("optimal value", prob.value)
-    return (ampl.value, noise.value)
+    if prob.status == cp.OPTIMAL_INACCURATE:
+        print("warning: analysis reports as inaccurate")
+    return (ampl.value, noise.value, prob.value)

@@ -22,6 +22,8 @@ nbins = 100
 width = 100
 # Number of spectra in dictionary.
 ndict = 5
+# Noise level for measurement.
+noise = 0.2
 
 # Make basis spectra and set up sampling.
 x = np.linspace(0, width, nbins)
@@ -43,22 +45,28 @@ bases = np.array([s.spectrum(x) for s in sdict])
 spectrum = np.dot(ampl, bases)
 
 # Noisy measured spectrum.
-noise = 0.2 * np.random.random(size=nbins)
-measured = spectrum + noise
+noise_spectrum = noise * 2 * np.random.random(size=nbins)
+measured = spectrum + noise_spectrum
 
-# Decomposed spectrum
-(ampl0, noise0) = cvx.decompose(bases, measured)
+# Decompose measured spectrum and report
+(ampl0, noise0, q) = cvx.decompose(bases, measured)
+print("analysis (q={:.3f}, noise={:.3f} ({:.3f})):".format(q, noise0, noise))
+for s in sdict:
+    print("- {}: {:.3f} ({:.3f})".format(s.name, ampl0[s.id], ampl[s.id]))
+print()
 spectrum0 = np.dot(ampl0, bases)
 
 # Plot analysis.
-fig = plt.figure(num=2, figsize=(8, 5))
+fig = plt.figure(num=2, figsize=(6, 5))
 fig.subplots_adjust(hspace=1)
-fig.add_subplot(3, 1, 1, title="implied")
-plt.plot(x, spectrum)
-fig.add_subplot(3, 1, 2, title="measured")
-plt.plot(x, measured)
-fig.add_subplot(3, 1, 3, title="decomposed (noise {})".format(noise0))
-plt.plot(x, spectrum0)
+fig.add_subplot(2, 1, 1, title="measured")
+plt.plot(x, measured, 'c')
+fig.add_subplot(2, 1, 2, title="analyzed")
+label = "true (noise {:.3f})".format(noise)
+plt.plot(x, spectrum, label=label)
+label = "est (noise {:.3f})".format(noise0)
+plt.plot(x, spectrum0, label=label)
+plt.legend()
 fig.suptitle("Spectrum")
 
 # Show all plots.
