@@ -116,8 +116,8 @@ def report(fout=None):
         f = sys.stdout
     else:
         f = open(fout, 'w')
-    print("analysis (q={:.3f}, noise={:.3f} ({:.3f})):"
-          .format(q, noise0, noise), file=f)
+    print("analysis (seed={}, q={:.3f}, noise={:.3f} ({:.3f})):"
+          .format(seed, q, noise0, noise), file=f)
     for s in sdict:
         print("- {}: {:.3f} ({:.3f})"
               .format(s.name, ampl0[s.id], ampl[s.id]), file=f)
