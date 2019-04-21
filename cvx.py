@@ -24,7 +24,7 @@ def decompose(bases, spectrum):
     obj = cp.Minimize(cp.norm(bases.T * ampl + noise - spectrum, 2))
 
     # Add some sanity constraints.
-    constraints = [noise <= 1, ampl <= len(bases)]
+    constraints = [noise >= 0, noise <= 1, ampl >= 0, ampl <= len(bases)]
 
     # Form and solve problem.
     prob = cp.Problem(obj, constraints)
