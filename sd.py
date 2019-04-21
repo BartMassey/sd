@@ -62,7 +62,7 @@ spectrum0 = np.dot(ampl0, bases) + noise0
 fig = plt.figure(num=2, figsize=(6, 5))
 fig.subplots_adjust(hspace=1)
 fig.add_subplot(2, 1, 1, title="measured")
-plt.plot(x, measured, 'c')
+plt.plot(x, measured, 'o', markersize=2)
 fig.add_subplot(2, 1, 2, title="analyzed")
 label = "true (noise {:.3f})".format(noise)
 plt.plot(x, spectrum, label=label)
