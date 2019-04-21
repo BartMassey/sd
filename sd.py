@@ -25,36 +25,45 @@ argp.add_argument("--seed", type=int,
 argp.add_argument("--noise", type=float,
                   default=0,
                   help="noise power level (default 0)")
+argp.add_argument("--bases", type=int,
+                  default=5,
+                  help="number of basis functions (default 5)")
+argp.add_argument("--samples", type=int,
+                  default=100,
+                  help="spectral sample width (default 100)")
 argp.add_argument("--save", action='store_true',
                   help="save analysis artifacts to files")
+argp.add_argument("--hide-basis", action='store_false',
+                  help="do not render the basis functions " +
+                       "(true for --bases > 5)")
 args = argp.parse_args()
 seed = args.seed
 noise = args.noise
 save = args.save
+nbins = args.samples
+ndict = args.bases
+show_basis = not args.hide_basis
+
+# Width of detector (usually bandwidth).
+width = nbins
 
 # Set the seed.
 np.random.seed(seed)
-
-# Number of sample "bins" in detector.
-nbins = 100
-# Width of detector (usually bandwidth).
-width = 100
-# Number of spectra in dictionary.
-ndict = 5
 
 # Make basis spectra and set up sampling.
 x = np.linspace(0, width, nbins)
 sdict = spectra.sdict(ndict, 0, width)
 
 # Plot basis spectra.
-fig = plt.figure(num=1, figsize=(ndict, 1.5 * ndict))
-fig.subplots_adjust(hspace=1)
-for s in sdict:
-    fig.add_subplot(5, 1, s.id+1, title=s.name)
-    plt.plot(x, s.spectrum(x))
-fig.suptitle("Basis Spectra (seed {})".format(seed))
-if save:
-    fig.savefig("basis-{}.png".format(seed))
+if show_basis:
+    fig = plt.figure(num=1, figsize=(ndict, 1.5 * ndict))
+    fig.subplots_adjust(hspace=1)
+    for s in sdict:
+        fig.add_subplot(5, 1, s.id+1, title=s.name)
+        plt.plot(x, s.spectrum(x))
+    fig.suptitle("Basis Spectra (seed {})".format(seed))
+    if save:
+        fig.savefig("basis-{}.png".format(seed))
 
 # Basis amplitude (prevalence).
 ampl = np.random.random(size=ndict)
