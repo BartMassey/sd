@@ -36,7 +36,7 @@ def decompose(bases, spectrum, complete, normtype):
     # Impose constraints.
     constraints = [
         noise >= 0, noise <= 1,
-        ampl >= 0, ampl <= 1,
+        ampl >= 0,
     ]
 
     if complete:

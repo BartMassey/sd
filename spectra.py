@@ -41,7 +41,7 @@ def spectrum(low, high, *args, **kwargs):
         # Uniform random height in [0.1..1).
         height = 0.1 + 0.9 * np.random.rand()
         # XXX "Plausible" random scale.
-        scale = (high - low) * (0.025 + 0.125 * np.random.rand())
+        scale = (high - low) * (0.005 + 0.005 * np.random.rand())
         peaks.append((loc, height, scale))
 
     # The spectrum function we will return.
