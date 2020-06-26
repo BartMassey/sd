@@ -31,7 +31,7 @@ def decompose(bases, spectrum, complete, normtype):
     noise = cp.Variable()
 
     # Form objective.
-    obj = cp.Minimize(cp.norm(bases.T * ampl + noise - spectrum, normtype))
+    obj = cp.Minimize(cp.norm(bases.T @ ampl + noise - spectrum, normtype))
 
     # Impose constraints.
     constraints = [
