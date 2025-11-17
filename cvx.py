@@ -50,4 +50,4 @@ def decompose(bases, spectrum, complete, normtype):
     assert prob.status == cp.OPTIMAL or prob.status == cp.OPTIMAL_INACCURATE
     if prob.status == cp.OPTIMAL_INACCURATE:
         print("warning: analysis reports as inaccurate")
-    return (ampl.value, 0.5 * noise.value, prob.value)
+    return (ampl.value, 2.0 * noise.value, prob.value)

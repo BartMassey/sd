@@ -24,7 +24,7 @@ argp.add_argument("--seed", type=int,
                   help="PRNG seed (default randomly generated)")
 argp.add_argument("--noise", type=float,
                   default=0,
-                  help="noise power level (default 0)")
+                  help="noise amplitude: uniform random samples in the range 0..noise (default 0)")
 argp.add_argument("--bases", type=int,
                   default=5,
                   help="number of basis functions (default 5)")
@@ -36,7 +36,7 @@ argp.add_argument("--samples", type=int,
 argp.add_argument("--norm", type=str,
                   choices=["L1", "L2", "Linf"],
                   default="Linf",
-                  help="error norm (default L1) -- see docs")
+                  help="error norm (default Linf)")
 argp.add_argument("--complete", action='store_true',
                   help="require prevalences to sum to 1")
 argp.add_argument("--save", action='store_true',
@@ -104,10 +104,10 @@ else:
 
 # Implied spectrum.
 bases = np.array([s.spectrum(x) for s in sdict])
-spectrum = np.dot(ampl, bases) + noise
+spectrum = np.dot(ampl, bases)
 
 # Noisy measured spectrum.
-noise_spectrum = noise * 2 * np.random.random(size=nbins)
+noise_spectrum = noise * np.random.random(size=nbins)
 measured = spectrum + noise_spectrum
 
 # Print an analysis report.

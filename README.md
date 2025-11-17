@@ -46,9 +46,8 @@ To run the program, you can just say `python3 sd.py`.
   constraint model.
 
 * You can set the norm used for the error computation in the
-  solver. The default is to use the L1 norm, which works
-  pretty well: you can also choose the always popular L2
-  norm or the Linf norm.
+  solver. The default is to use the Linf norm: you can also
+  choose the L1 norm or the always popular L2 norm.
 
 * You can choose to use only some of the bases to form the
   spectrum, with the rest having zero prevalence. This
@@ -70,19 +69,20 @@ The analysis should complete quickly and print the following
 text:
 
 ```
-analysis (q=0.192, noise=0.203 (0.200)):
-- olvium: 0.536 (0.453)
-- afqium: 0.670 (0.674)
-- emvium: 0.520 (0.504)
-- ecsium: 0.134 (0.158)
-- anpium: 0.138 (0.165)
+analysis (seed=27, q=0.099, noise=0.202 (0.200)):
+- olvium: 0.416 (0.453)
+- afqium: 0.674 (0.674)
+- emvium: 0.460 (0.504)
+- ecsium: 0.163 (0.158)
+- anpium: 0.158 (0.165)
 ```
 
 Note that the basis spectra are given randomly-generated
 "element names" for convenience. The numbers in parentheses
 are the "true" values for which the numbers to their left
-are estimates. The `q` is the absolute error (L1 norm) in
-the approximation: it should be small.
+are estimates. The `q` is the error in the approximation
+using the chosen norm (default Linf, the maximum pointwise
+error): it should be small.
 
 The code should also display two figures. Figure 1 shows the
 basis spectra chosen for the analysis.
@@ -96,11 +96,6 @@ and the estimated spectrum.
 ![Analysis](example/spectrum-27.png)
 
 ## Future Work
-
-The handling of the noise component still doesn't seem to be
-quite right. A statistician should think about it. Moving
-from the L2 norm to the L1 norm seemed to help here,
-although that may not be the right answer.
 
 It would be useful to add a lambda parameter that
 disproportionately penalized the objective function for
