@@ -45,6 +45,9 @@ argp.add_argument("--show-basis", action='store_true',
                   help="display basis spectra plot")
 argp.add_argument("--show-spectrum", action='store_true',
                   help="display spectrum analysis plot")
+argp.add_argument("--bootstrap", type=int, nargs='?', const=100,
+                  metavar="N",
+                  help="compute bootstrap confidence intervals with N samples (default 100)")
 args = argp.parse_args()
 
 # Set the simple variables up.
@@ -116,18 +119,43 @@ def report(fout=None):
         f = sys.stdout
     else:
         f = open(fout, 'w')
-    print("analysis (seed={}, q={:.3f}, noise={:.3f} ({:.3f})):"
-          .format(seed, q, noise0, noise), file=f)
+    print("analysis (seed={}, q={:.3f}):"
+          .format(seed, q), file=f)
     for s in sdict:
-        print("- {}: {:.3f} ({:.3f})"
-              .format(s.name, ampl0[s.id], ampl[s.id]), file=f)
-    print("RMS error: {:.3f}".format(rms_error), file=f)
+        if ci_lower is not None:
+            print("- {}: {:.3f} ({:.3f}) [{:.3f}, {:.3f}]"
+                  .format(s.name, ampl[s.id], ampl0[s.id], ci_lower[s.id], ci_upper[s.id]), file=f)
+        else:
+            print("- {}: {:.3f} ({:.3f})"
+                  .format(s.name, ampl[s.id], ampl0[s.id]), file=f)
+    print("- Noise: {:.3f} ({:.3f})".format(noise, noise0), file=f)
+    print("- RMS error: {:.3f}".format(rms_error), file=f)
     if fout != None:
         f.close()
 
 # Decompose measured spectrum and report
 (ampl0, noise0, q) = cvx.decompose(bases, measured, complete, norm)
 rms_error = np.sqrt(np.mean((ampl0 - ampl)**2))
+
+# Bootstrap confidence intervals if requested
+ci_lower = None
+ci_upper = None
+if args.bootstrap is not None:
+    n_bootstrap = args.bootstrap
+    bootstrap_ampls = []
+    fitted_spectrum = np.dot(ampl0, bases)
+    for i in range(n_bootstrap):
+        # Generate perturbed spectrum with resampled noise
+        noise_sample = noise0 * np.random.random(size=nbins)
+        measured_boot = fitted_spectrum + noise_sample
+        # Decompose
+        (ampl_boot, _, _) = cvx.decompose(bases, measured_boot, complete, norm)
+        bootstrap_ampls.append(ampl_boot)
+    # Compute 95% confidence intervals
+    bootstrap_ampls = np.array(bootstrap_ampls)
+    ci_lower = np.percentile(bootstrap_ampls, 2.5, axis=0)
+    ci_upper = np.percentile(bootstrap_ampls, 97.5, axis=0)
+
 report()
 if save:
     report("analysis-{}.txt".format(seed))
@@ -136,27 +164,37 @@ spectrum0 = np.dot(ampl0, bases) + noise0
 # Plot analysis.
 if show_spectrum or save:
     fig = plt.figure(num=2, figsize=(6, 5))
-    fig.subplots_adjust(hspace=1, right=0.75)
-    fig.add_subplot(2, 1, 1, title="measured")
-    plt.plot(x, measured, 'o', markersize=2)
-    ax = fig.add_subplot(2, 1, 2, title="analyzed")
-    label = "true (noise {:.3f})".format(noise)
-    plt.plot(x, spectrum, label=label)
-    label = "est (noise {:.3f})".format(noise0)
-    plt.plot(x, spectrum0 - noise0, label=label)
+    fig.subplots_adjust(bottom=0.35)
+    ax = fig.add_subplot(1, 1, 1, title="Spectrum Analysis")
 
-    # Add amplitude statistics as text
-    stats_text = "Amplitudes (est/true):\n"
-    for s in sdict:
-        stats_text += "{}: {:.3f}/{:.3f}\n".format(s.name, ampl0[s.id], ampl[s.id])
-    stats_text += "RMS error={:.3f}\n".format(rms_error)
-    stats_text += "Noise: {:.3f} ({:.3f})".format(noise0, noise)
-    plt.text(1.02, 0.5, stats_text, transform=ax.transAxes,
-             fontsize=8, verticalalignment='center',
-             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+    # Plot measured data points
+    plt.plot(x, measured, 'o', markersize=2, alpha=0.5, label="measured")
+    # Plot true spectrum
+    label = "true (noise {:.3f})".format(noise)
+    plt.plot(x, spectrum, label=label, linewidth=2)
+    # Plot estimated spectrum
+    label = "est (noise {:.3f})".format(noise0)
+    plt.plot(x, spectrum0 - noise0, label=label, linewidth=2)
 
     plt.legend()
-    fig.suptitle("Spectrum")
+
+    # Add amplitude statistics as text below the plot
+    if ci_lower is not None:
+        stats_text = "Analysis (true (est) [95% CI]):\n"
+    else:
+        stats_text = "Analysis (true (est)):\n"
+    for s in sdict:
+        if ci_lower is not None:
+            stats_text += "- {}: {:.3f} ({:.3f}) [{:.3f}, {:.3f}]\n".format(
+                s.name, ampl[s.id], ampl0[s.id], ci_lower[s.id], ci_upper[s.id])
+        else:
+            stats_text += "- {}: {:.3f} ({:.3f})\n".format(s.name, ampl[s.id], ampl0[s.id])
+    stats_text += "- Noise: {:.3f} ({:.3f})\n".format(noise, noise0)
+    stats_text += "- RMS error: {:.3f}".format(rms_error)
+    fig.text(0.5, 0.02, stats_text, transform=fig.transFigure,
+             fontsize=8, verticalalignment='bottom', horizontalalignment='center',
+             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
     if save:
         fig.savefig("spectrum-{}.png".format(seed))
 

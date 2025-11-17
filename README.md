@@ -10,11 +10,12 @@ The demo generates a random set of basis spectra. It then
 simulates a measured spectrum comprised of the sum of random
 proportions of the basis spectra and a uniform noise term.
 CVXPY is used to estimate the spectral composition and noise
-level of the measured spectrum. Finally, the results of the
-simulation and analysis are displayed both textually and
-graphically using [`matplotlib`](https://matplotlib.org):
-the analysis and figures generated are also saved as `txt`
-and PNG files in the current directory.
+level of the measured spectrum. Optionally, bootstrap
+confidence intervals can be computed to quantify uncertainty
+in the estimates. Results are displayed textually by default,
+with optional graphical display using
+[`matplotlib`](https://matplotlib.org). Analysis results can
+be saved as `txt` and PNG files in the current directory.
 
 ## Build and Run
 
@@ -54,8 +55,16 @@ To run the program, you can just say `python3 sd.py`.
   "sparse" spectrum could be further optimized through
   greedy basis pursuit — see Future Work below.
 
+* You can compute bootstrap confidence intervals with
+  `--bootstrap [N]` (default 100 samples if N not specified).
+  This provides uncertainty quantification for the amplitude
+  estimates.
+
+* By default, only text output is shown. Use `--show-basis`
+  and/or `--show-spectrum` to display interactive plots.
+
 * You can specify saving your analysis files to the current
-  directory for later use.
+  directory for later use with `--save`.
 
 Say `python3 sd.py --help` for program usage details.
 
@@ -63,35 +72,42 @@ Say `python3 sd.py --help` for program usage details.
 
 Let's try it:
 
-    python3 sd.py --seed=27 --noise=0.2
+    python3 sd.py --seed=27 --noise=0.2 --bootstrap
 
 The analysis should complete quickly and print the following
 text:
 
 ```
-analysis (seed=27, q=0.099, noise=0.202 (0.200)):
-- olvium: 0.416 (0.453)
-- afqium: 0.674 (0.674)
-- emvium: 0.460 (0.504)
-- ecsium: 0.163 (0.158)
-- anpium: 0.158 (0.165)
+analysis (seed=27, q=0.099):
+- olvium: 0.453 (0.416) [0.333, 0.507]
+- afqium: 0.674 (0.674) [0.579, 0.769]
+- emvium: 0.504 (0.460) [0.382, 0.556]
+- ecsium: 0.158 (0.163) [0.070, 0.252]
+- anpium: 0.165 (0.158) [0.081, 0.247]
+- Noise: 0.200 (0.202)
+- RMS error: 0.034
 ```
 
 Note that the basis spectra are given randomly-generated
-"element names" for convenience. The numbers in parentheses
-are the "true" values for which the numbers to their left
-are estimates. The `q` is the error in the approximation
-using the chosen norm (default Linf, the maximum pointwise
-error): it should be small.
+"element names" for convenience. The format is `true
+(estimate) [CI_lower, CI_upper]`. The true values are what
+the simulation used; the estimates are from the analysis.
+The confidence intervals show the uncertainty in the
+estimates (when `--bootstrap` is used). The `q` value is the
+error in the approximation using the chosen norm (default
+Linf, the maximum pointwise error): it should be small.
 
-The code should also display two figures. Figure 1 shows the
-basis spectra chosen for the analysis.
+To view plots, add `--show-basis` and/or `--show-spectrum`:
+
+    python3 sd.py --seed=27 --noise=0.2 --show-basis --show-spectrum
+
+Figure 1 shows the basis spectra chosen for the analysis.
 
 ![Basis Spectra](example/basis-27.png)
 
-Figure 2 shows the analysis: the first graph is the
-simulated measurement; the second shows the true spectrum
-and the estimated spectrum.
+Figure 2 shows the spectrum analysis: measured datapoints,
+true spectrum, and estimated spectrum are displayed together,
+with analysis statistics shown below the plot.
 
 ![Analysis](example/spectrum-27.png)
 
