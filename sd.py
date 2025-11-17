@@ -41,21 +41,21 @@ argp.add_argument("--complete", action='store_true',
                   help="require prevalences to sum to 1")
 argp.add_argument("--save", action='store_true',
                   help="save analysis artifacts to files")
-argp.add_argument("--hide-basis", action='store_true',
-                  help="do not render the basis functions " +
-                       "(true for --bases > 5)")
+argp.add_argument("--show-basis", action='store_true',
+                  help="display basis spectra plot")
+argp.add_argument("--show-spectrum", action='store_true',
+                  help="display spectrum analysis plot")
 args = argp.parse_args()
 
 # Set the simple variables up.
 seed = args.seed
 noise = args.noise
 save = args.save
+show_basis = args.show_basis
+show_spectrum = args.show_spectrum
 nbins = args.samples
 ndict = args.bases
 complete = args.complete
-
-# Enable the basis under the right conditions.
-show_basis = not args.hide_basis and ndict <= 5
 
 # Pick a valid norm.
 norms = {"L1" : 1, "L2" : 2, "Linf" : "inf"}
@@ -82,7 +82,7 @@ x = np.linspace(0, width, nbins)
 sdict = spectra.sdict(ndict, 0, width)
 
 # Plot basis spectra.
-if show_basis:
+if (show_basis or save) and ndict <= 5:
     fig = plt.figure(num=1, figsize=(ndict, 1.5 * ndict))
     fig.subplots_adjust(hspace=1)
     for s in sdict:
@@ -121,30 +121,45 @@ def report(fout=None):
     for s in sdict:
         print("- {}: {:.3f} ({:.3f})"
               .format(s.name, ampl0[s.id], ampl[s.id]), file=f)
+    print("RMS error: {:.3f}".format(rms_error), file=f)
     if fout != None:
         f.close()
 
 # Decompose measured spectrum and report
 (ampl0, noise0, q) = cvx.decompose(bases, measured, complete, norm)
+rms_error = np.sqrt(np.mean((ampl0 - ampl)**2))
 report()
 if save:
     report("analysis-{}.txt".format(seed))
 spectrum0 = np.dot(ampl0, bases) + noise0
 
 # Plot analysis.
-fig = plt.figure(num=2, figsize=(6, 5))
-fig.subplots_adjust(hspace=1)
-fig.add_subplot(2, 1, 1, title="measured")
-plt.plot(x, measured, 'o', markersize=2)
-fig.add_subplot(2, 1, 2, title="analyzed")
-label = "true (noise {:.3f})".format(noise)
-plt.plot(x, spectrum, label=label)
-label = "est (noise {:.3f})".format(noise0)
-plt.plot(x, spectrum0, label=label)
-plt.legend()
-fig.suptitle("Spectrum")
-if save:
-    fig.savefig("spectrum-{}.png".format(seed))
+if show_spectrum or save:
+    fig = plt.figure(num=2, figsize=(6, 5))
+    fig.subplots_adjust(hspace=1, right=0.75)
+    fig.add_subplot(2, 1, 1, title="measured")
+    plt.plot(x, measured, 'o', markersize=2)
+    ax = fig.add_subplot(2, 1, 2, title="analyzed")
+    label = "true (noise {:.3f})".format(noise)
+    plt.plot(x, spectrum, label=label)
+    label = "est (noise {:.3f})".format(noise0)
+    plt.plot(x, spectrum0 - noise0, label=label)
+
+    # Add amplitude statistics as text
+    stats_text = "Amplitudes (est/true):\n"
+    for s in sdict:
+        stats_text += "{}: {:.3f}/{:.3f}\n".format(s.name, ampl0[s.id], ampl[s.id])
+    stats_text += "RMS error={:.3f}\n".format(rms_error)
+    stats_text += "Noise: {:.3f} ({:.3f})".format(noise0, noise)
+    plt.text(1.02, 0.5, stats_text, transform=ax.transAxes,
+             fontsize=8, verticalalignment='center',
+             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+    plt.legend()
+    fig.suptitle("Spectrum")
+    if save:
+        fig.savefig("spectrum-{}.png".format(seed))
 
 # Show all plots.
-plt.show()
+if show_basis or show_spectrum:
+    plt.show()
